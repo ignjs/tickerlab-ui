@@ -4,40 +4,47 @@ export interface AnalysisResponse {
   quote: {
     symbol: string;
     price: number;
-    change: number;
-    change_pct: number;
-    prev_close: number;
-    open: number;
-    day_high: number;
-    day_low: number;
-    volume: number;
+    change: number | null;
+    change_pct: number | null;
+    prev_close: number | null;
+    open: number | null;
+    day_high: number | null;
+    day_low: number | null;
+    volume: number | null;
     currency: string;
     timezone: string;
     timestamp: string;
-  };
-  bars_count: number;
-  events_count: number;
-  summary: {
-    hit_rate: number;
-    mean_forward_return: number;
-    median_forward_return: number;
-    profit_factor: number;
-    sharpe: number;
-    max_drawdown: number;
-    auc: number;
-    brier_score: number;
-    precision_at_k: number;
-    stability_score: number | null;
-    [key: string]: any;
-  };
-  score_now: number;
-  message: string | null;
+  } | null;
+  bars?: Array<{
+    timestamp: string;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+    volume: number;
+  }>;
   pivots?: Array<{
     timestamp: string;
     type: 'high' | 'low';
     value: number;
   }>;
-  [key: string]: any;
+  bars_count: number;
+  events_count: number;
+  summary: {
+    hit_rate: number | null;
+    mean_forward_return: number | null;
+    median_forward_return: number | null;
+    profit_factor: number | null;
+    sharpe: number | null;
+    max_drawdown: number | null;
+    auc: number | null;
+    brier_score: number | null;
+    precision_at_k: number | null;
+    stability_score: number | null;
+  } | null;
+  score_now: number | null;
+  message: string | null;
+  note?: string | null;
 }
 
 export interface AnalysisRequest {

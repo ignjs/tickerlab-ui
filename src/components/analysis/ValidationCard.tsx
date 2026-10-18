@@ -17,12 +17,14 @@ export const ValidationCard: React.FC<ValidationCardProps> = ({ data }) => {
       <div className="mb-4">
         <div className="flex justify-between text-xs mb-1">
           <span>Robustness Score (AUC)</span>
-          <span className="text-blue-400 font-bold">{(data.auc * 100).toFixed(2)}%</span>
+          <span className="text-blue-400 font-bold">
+            {typeof data.auc === 'number' ? `${(data.auc * 100).toFixed(2)}%` : 'N/A'}
+          </span>
         </div>
         <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
           <div 
             className="bg-blue-500 h-full transition-all duration-1000" 
-            style={{ width: `${data.auc * 100}%` }}
+            style={{ width: `${typeof data.auc === 'number' ? data.auc * 100 : 0}%` }}
           />
         </div>
       </div>

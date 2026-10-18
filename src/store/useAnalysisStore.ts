@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import axios from 'axios';
 import { analysisApi } from '../api/client';
 import type { AnalysisResponse, AnalysisRequest } from '../types/analysis';
 
@@ -33,30 +34,34 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
     const { activeTicker, activeTimeframe } = get();
     const symbol = symbolOverride || activeTicker;
 
-    console.log('[Store] Starting fetchAnalysis for symbol:', symbol);
-
     if (!symbol) {
-      console.warn('[Store] No symbol provided, aborting fetch');
       set({ error: 'No ticker symbol provided', isLoading: false });
       return;
     }
 
     set({ isLoading: true, error: null });
     try {
+      const rangeConfig: Record<string, { timeframe: string; period: string }> = {
+        '1d': { timeframe: '5m', period: '1d' },
+        '1w': { timeframe: '30m', period: '5d' },
+        '1m': { timeframe: '1d', period: '1mo' },
+        '1y': { timeframe: '1d', period: '1y' },
+        ytd: { timeframe: '1d', period: 'ytd' },
+        all: { timeframe: '1d', period: 'max' },
+      };
+      const selectedRange = rangeConfig[activeTimeframe] ?? { timeframe: activeTimeframe, period: 'max' };
       const request: AnalysisRequest = {
         symbol,
-        timeframe: activeTimeframe,
+        ...selectedRange,
       };
-      console.log('[Store] Calling API with request:', request);
       const data = await analysisApi.analyzeSymbol(request);
-      
-      console.log('[Store] API response received successfully:', data);
       set({ analysisData: data, isLoading: false });
-      console.log('[Store] State updated with analysisData');
-    } catch (err: any) {
-      console.error('[Store] API Error caught:', err);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error fetching analysis';
       set({ 
-        error: err.response?.data?.detail || err.message || 'Error fetching analysis', 
+        error: axios.isAxiosError<{ detail?: string }>(err)
+          ? err.response?.data?.detail || message
+          : message,
         isLoading: false 
       });
     }

@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { analysisApi } from '../api/client';
-import type { AnalysisResponse } from '../types/analysis';
 
 // Mocking axios to avoid actual network calls
 vi.mock('axios', () => {
