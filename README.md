@@ -1,58 +1,74 @@
 # TickerLab UI
 
-`tickerlab-ui` es el panel de control y visualización para el ecosistema TickerLab. Proporciona una interfaz intuitiva para ejecutar pipelines de análisis cuantitativo y visualizar la robustez de los patrones detectados en activos financieros.
+`tickerlab-ui` es la interfaz web de TickerLab para consultar análisis de activos financieros. El terminal reúne búsqueda de símbolos, selección de periodos, gráficos de precios y métricas de análisis en una sola vista.
 
-## 🚀 Características
+## Características
 
-- **Dashboard de Análisis**: Interfaz optimizada para la búsqueda de tickers y selección de temporalidades.
-- **Visualización de Pivots**: Integración con `lightweight-charts` (TradingView) para representar la estructura de precios y los puntos de giro (Highs/Lows).
-- **Métricas Cuantitativas**: Visualización instantánea de KPIs como Sharpe Ratio, Sortino, Win Rate y Profit Factor.
-- **Validación Walk-forward**: Panel de robustez que muestra el score general y el desempeño detallado por folds.
-- **Estado en Tiempo Real**: Gestión de estados de carga y errores mediante Zustand.
+- **Terminal de análisis** con búsqueda de símbolos y periodos `1D`, `1W`, `1M`, `1Y`, `YTD` y `ALL`.
+- **Watchlist** con accesos rápidos a IONQ, TSLA, NVDA, AAPL y MSFT. Los datos de precio y variación se muestran para el activo consultado; no hay un feed WebSocket conectado.
+- **Gráfico interactivo** de velas y volumen, con pivotes High/Low y niveles recientes de soporte y resistencia.
+- **Panel de métricas** con hit rate, factor de beneficio, Sharpe, retornos medios y medianos, drawdown máximo, AUC y estabilidad.
+- **Estado de la API** actualizado periódicamente y estados de carga y error durante las consultas.
+- **Diseño adaptable** para pantallas estrechas y grandes.
 
-## 🛠️ Stack Tecnológico
+## Stack tecnológico
 
-- **Framework**: [React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
-- **Build Tool**: [Vite](https://vitejs.dev/)
-- **State Management**: [Zustand](https://zustand-demo.pmnd.rs/)
-- **HTTP Client**: [Axios](https://axios-http.com/)
-- **Visualización**: [Lightweight Charts](https://tradingview.github.io/lightweight-charts/) (TradingView)
-- **Estilos**: [Tailwind CSS](https://tailwindcss.com/)
-- **Iconos**: [Lucide React](https://lucide.dev/)
+- React 19 y TypeScript
+- Vite 8
+- Zustand y Axios
+- Lightweight Charts
+- Tailwind CSS 4
+- Lucide React
+- Vitest y Testing Library
 
-## 📦 Instalación y Ejecución
+## Requisitos
 
-### Requisitos previos
-- Node.js $\ge$ 18.0.0
-- `tickerlab-services` ejecutándose en `http://localhost:8000`
+- Node.js `20.19+` o `22.12+`
+- npm
+- `tickerlab-services` disponible en `http://localhost:8000`
 
-### Instalación local
+## Instalación y ejecución
+
+Desde la raíz del repositorio:
+
 ```bash
-# Navegar al directorio del UI
-cd tickerlab-ui
-
-# Instalar dependencias
-npm install
-```
-
-### Ejecución en desarrollo
-```bash
+npm ci
 npm run dev
 ```
-La aplicación estará disponible en: `http://localhost:5173`
 
-## 🔌 Integración con el Backend
+Vite inicia el entorno de desarrollo en `http://localhost:5173`.
 
-La aplicación se comunica con `tickerlab-services` a través del cliente definido en `src/api/client.ts`.
+## Comandos
 
-**Endpoint principal:**
-- `POST /analysis/analyze`: Envía el símbolo y timeframe para obtener el análisis completo.
+```bash
+npm run dev       # Servidor de desarrollo
+npm run build     # Verificación de TypeScript y build de producción
+npm run preview   # Vista previa del build
+npm run lint      # Análisis estático con oxlint
+npm test -- --run # Ejecutar las pruebas una vez
+```
 
-## 📂 Estructura del Proyecto
+## Integración con el backend
 
-- `src/api/`: Clientes de comunicación con el servidor.
-- `src/components/`: Componentes modulares de la interfaz.
-  - `layout/`: Componentes estructurales (TopBar, etc).
-  - `analysis/`: Componentes de visualización de datos (PriceChart, MetricsCard).
-- `src/store/`: Gestión de estado global con Zustand.
-- `src/types/`: Definiciones de TypeScript para las respuestas de la API.
+El cliente HTTP de `src/api/client.ts` usa `http://localhost:8000` como URL base. Comprueba la disponibilidad mediante `GET /health` y envía los análisis a `POST /analysis/analyze`.
+
+El cuerpo de análisis incluye el símbolo y el periodo seleccionado. Las selecciones se traducen así:
+
+| Periodo de la interfaz | Timeframe de datos | Periodo de datos |
+| --- | --- | --- |
+| `1D` | `5m` | `1d` |
+| `1W` | `30m` | `5d` |
+| `1M` | `1d` | `1mo` |
+| `1Y` | `1d` | `1y` |
+| `YTD` | `1d` | `ytd` |
+| `ALL` | `1d` | `max` |
+
+## Estructura del proyecto
+
+- `src/api/`: cliente REST para los servicios de análisis.
+- `src/components/ConsoleDashboard.tsx`: composición principal del terminal.
+- `src/components/terminal/`: barra de búsqueda, watchlist, gráfico y panel de métricas.
+- `src/components/analysis/`: componentes de análisis, incluido el gráfico de precios.
+- `src/store/`: estado global de ticker, periodo y resultados con Zustand.
+- `src/types/`: tipos de solicitud y respuesta de análisis.
+- `src/__tests__/` y `src/components/analysis/__tests__/`: pruebas.
